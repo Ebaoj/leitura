@@ -123,5 +123,45 @@ export function formatBookFromGoogle(book: GoogleBook) {
   }
 }
 
+// Search for similar books based on author and categories
+export async function getRecommendations(
+  authors: string[],
+  categories: string[],
+  excludeIds: string[],
+  limit = 10
+): Promise<GoogleBook[]> {
+  const recommendations: GoogleBook[] = []
+  const seenIds = new Set(excludeIds)
+
+  // Search by authors (other books by same authors)
+  for (const author of authors.slice(0, 3)) {
+    if (recommendations.length >= limit) break
+    const books = await searchBooksByAuthor(author, 5)
+    for (const book of books) {
+      if (!seenIds.has(book.id) && recommendations.length < limit) {
+        seenIds.add(book.id)
+        recommendations.push(book)
+      }
+    }
+  }
+
+  // Search by categories/subjects
+  for (const category of categories.slice(0, 3)) {
+    if (recommendations.length >= limit) break
+    const response = await fetch(
+      `${GOOGLE_BOOKS_API}/volumes?q=subject:${encodeURIComponent(category)}&maxResults=10&langRestrict=pt&orderBy=relevance`
+    )
+    const data: GoogleBooksSearchResult = await response.json()
+    for (const book of data.items || []) {
+      if (!seenIds.has(book.id) && recommendations.length < limit) {
+        seenIds.add(book.id)
+        recommendations.push(book)
+      }
+    }
+  }
+
+  return recommendations
+}
+
 // For backwards compatibility with existing code
 export type { GoogleBook as BookResult }

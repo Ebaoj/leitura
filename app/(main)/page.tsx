@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { AnnotationCard } from '@/components/annotation-card'
+import { BookRecommendations } from '@/components/book-recommendations'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Loader2, PenLine } from 'lucide-react'
@@ -127,6 +128,9 @@ export default function FeedPage() {
           </Button>
         </Link>
       </div>
+
+      {/* Book Recommendations */}
+      <BookRecommendations />
 
       {clubs.length > 0 && (
         <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | string)}>
