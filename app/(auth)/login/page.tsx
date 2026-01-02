@@ -8,63 +8,35 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, BookOpen, Mail } from 'lucide-react'
+import { Loader2, BookOpen } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !password) return
 
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      password,
     })
 
     if (error) {
       setError(error.message)
+      setLoading(false)
     } else {
-      setSent(true)
+      router.push('/')
+      router.refresh()
     }
-    setLoading(false)
-  }
-
-  if (sent) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-zinc-900 dark:to-zinc-800">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center mb-4">
-              <Mail className="h-6 w-6 text-amber-600" />
-            </div>
-            <CardTitle>Verifique seu email</CardTitle>
-            <CardDescription>
-              Enviamos um link mágico para <strong>{email}</strong>. Clique no link para entrar.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setSent(false)}
-            >
-              Usar outro email
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
   }
 
   return (
@@ -92,13 +64,26 @@ export default function LoginPage() {
               />
             </div>
 
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="mt-1.5"
+                disabled={loading}
+              />
+            </div>
+
             {error && (
               <p className="text-sm text-red-500">{error}</p>
             )}
 
             <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-600" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Entrar com Magic Link
+              Entrar
             </Button>
           </form>
 
