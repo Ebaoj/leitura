@@ -25,6 +25,12 @@ import { BOOK_STATUS_LABELS } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { CustomShelves, AddToShelf } from '@/components/custom-shelves'
+import { GoodreadsImport } from '@/components/goodreads-import'
+import { BookEmotions } from '@/components/book-emotions'
+import { StoryTemplate } from '@/components/story-template'
+import { ReadingTimer } from '@/components/reading-timer'
+import { QuotesList } from '@/components/quotes-list'
 
 type UserBookWithBook = UserBook & { book: Book }
 
@@ -200,15 +206,17 @@ export default function ShelfPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Minha Estante</h1>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Minha Estante</h1>
+          <GoodreadsImport />
+        </div>
 
-      <BookSearch
-        onSelect={handleAddBook}
-        placeholder="Buscar livros para adicionar..."
-      />
+        <BookSearch
+          onSelect={handleAddBook}
+          placeholder="Buscar livros para adicionar..."
+        />
 
       <Tabs value={currentTab} onValueChange={(v) => setCurrentTab(v as BookStatus)}>
         <TabsList className="grid grid-cols-4 w-full">
@@ -318,6 +326,24 @@ export default function ShelfPage() {
                 </div>
               </div>
 
+              {/* Emotions */}
+              <div className="border-t pt-4">
+                <BookEmotions bookId={selectedBook.book.id} compact />
+              </div>
+
+              {/* Timer for books being read */}
+              {selectedBook.status === 'reading' && (
+                <div className="border-t pt-4">
+                  <ReadingTimer book={selectedBook.book} onSessionEnd={fetchBooks} />
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                <AddToShelf bookId={selectedBook.book.id} />
+                <StoryTemplate book={selectedBook.book} userBook={selectedBook} rating={selectedBook.rating || undefined} />
+              </div>
+
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="outline"
@@ -337,6 +363,15 @@ export default function ShelfPage() {
           )}
         </DialogContent>
       </Dialog>
+      </div>
+
+      {/* Sidebar */}
+      <div className="space-y-6">
+        <CustomShelves />
+        {books.find(b => b.status === 'reading') && (
+          <QuotesList bookId={books.find(b => b.status === 'reading')?.book.id} book={books.find(b => b.status === 'reading')?.book} />
+        )}
+      </div>
     </div>
   )
 }

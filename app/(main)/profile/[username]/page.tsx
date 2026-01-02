@@ -21,6 +21,9 @@ import {
 import { Loader2, BookOpen, Users, FileText, Calendar, Settings } from 'lucide-react'
 import type { Profile, Book, UserBook, Annotation, Reaction, Reply } from '@/lib/types'
 import { toast } from 'sonner'
+import { UserFollow } from '@/components/user-follow'
+import { ReadingGoal } from '@/components/reading-goal'
+import { ReadingStreak } from '@/components/reading-streak'
 
 type UserBookWithBook = UserBook & { book: Book }
 
@@ -220,8 +223,14 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           {profile.bio && (
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">{profile.bio}</p>
           )}
+          <div className="mt-3">
+            <UserFollow userId={profile.id} compact />
+          </div>
         </div>
       </div>
+
+      {/* Reading Streak */}
+      <ReadingStreak />
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -306,6 +315,12 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           </CardContent>
         </Card>
       )}
+
+      {/* Reading Goal and Follow */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ReadingGoal />
+        <UserFollow userId={profile.id} />
+      </div>
 
       {/* Edit Profile Dialog */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>

@@ -4,6 +4,12 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { AnnotationCard } from '@/components/annotation-card'
 import { BookRecommendations } from '@/components/book-recommendations'
+import { ReadingGoal } from '@/components/reading-goal'
+import { ReadingStreak } from '@/components/reading-streak'
+import { ReadingStats } from '@/components/reading-stats'
+import { FriendActivityFeed } from '@/components/user-follow'
+import { QuotesList } from '@/components/quotes-list'
+import { ReadingChallenge } from '@/components/reading-challenge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Loader2, PenLine } from 'lucide-react'
@@ -118,19 +124,24 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Feed</h1>
-        <Link href="/shelf">
-          <Button className="bg-amber-500 hover:bg-amber-600">
-            <PenLine className="h-4 w-4 mr-2" />
-            Nova Anotação
-          </Button>
-        </Link>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Main Feed Column */}
+      <div className="lg:col-span-2 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Feed</h1>
+          <Link href="/shelf">
+            <Button className="bg-amber-500 hover:bg-amber-600">
+              <PenLine className="h-4 w-4 mr-2" />
+              Nova Anotação
+            </Button>
+          </Link>
+        </div>
 
-      {/* Book Recommendations */}
-      <BookRecommendations />
+        {/* Reading Streak */}
+        <ReadingStreak />
+
+        {/* Book Recommendations */}
+        <BookRecommendations />
 
       {clubs.length > 0 && (
         <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | string)}>
@@ -177,6 +188,16 @@ export default function FeedPage() {
           ))}
         </div>
       )}
+      </div>
+
+      {/* Sidebar */}
+      <div className="space-y-6">
+        <ReadingGoal />
+        <ReadingStats />
+        <ReadingChallenge />
+        <FriendActivityFeed />
+        <QuotesList />
+      </div>
     </div>
   )
 }

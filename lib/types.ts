@@ -1,6 +1,7 @@
 export interface Profile {
   id: string
   username: string
+  email?: string
   display_name: string | null
   avatar_url: string | null
   bio: string | null
@@ -86,6 +87,113 @@ export interface Reply {
   content: string
   created_at: string
   user?: Profile
+}
+
+// New types for features
+export interface ReadingGoal {
+  id: string
+  user_id: string
+  year: number
+  target_books: number
+  created_at: string
+}
+
+export interface ReadingProgress {
+  id: string
+  user_id: string
+  book_id: string
+  pages_read: number
+  reading_date: string
+  minutes_read: number | null
+  notes: string | null
+  created_at: string
+}
+
+export interface BookEmotion {
+  id: string
+  user_id: string
+  book_id: string
+  emotion: EmotionType
+  created_at: string
+}
+
+export type EmotionType = 'loved' | 'cried' | 'laughed' | 'scared' | 'thoughtful' | 'bored' | 'angry' | 'inspired'
+
+export const EMOTION_LABELS: Record<EmotionType, { emoji: string; label: string }> = {
+  loved: { emoji: '❤️', label: 'Amei' },
+  cried: { emoji: '😢', label: 'Chorei' },
+  laughed: { emoji: '😂', label: 'Ri muito' },
+  scared: { emoji: '😱', label: 'Me assustou' },
+  thoughtful: { emoji: '🤔', label: 'Me fez pensar' },
+  bored: { emoji: '😴', label: 'Entediante' },
+  angry: { emoji: '😤', label: 'Me irritou' },
+  inspired: { emoji: '✨', label: 'Me inspirou' },
+}
+
+export interface Quote {
+  id: string
+  user_id: string
+  book_id: string
+  content: string
+  page_number: number | null
+  chapter: string | null
+  is_public: boolean
+  created_at: string
+  book?: Book
+  user?: Profile
+}
+
+export interface CustomShelf {
+  id: string
+  user_id: string
+  name: string
+  description: string | null
+  emoji: string | null
+  is_public: boolean
+  created_at: string
+  books?: Book[]
+}
+
+export interface Follow {
+  follower_id: string
+  following_id: string
+  created_at: string
+}
+
+export interface Challenge {
+  id: string
+  club_id: string | null
+  created_by: string
+  name: string
+  description: string | null
+  type: 'bingo' | 'rainbow' | 'genre' | 'pages' | 'books_count'
+  config: Record<string, unknown>
+  start_date: string | null
+  end_date: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export interface ChallengeProgress {
+  id: string
+  challenge_id: string
+  user_id: string
+  book_id: string | null
+  slot_key: string | null
+  completed_at: string
+}
+
+export interface ReadingSession {
+  id: string
+  user_id: string
+  book_id: string
+  started_at: string
+  ended_at: string | null
+  duration_minutes: number | null
+  pages_start: number | null
+  pages_end: number | null
+  created_at: string
+  book?: Book
 }
 
 export type BookStatus = 'want' | 'reading' | 'read' | 'abandoned'

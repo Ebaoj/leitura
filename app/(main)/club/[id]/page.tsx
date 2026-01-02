@@ -21,6 +21,8 @@ import { Loader2, Settings, Copy, BookOpen, Plus, LogOut } from 'lucide-react'
 import type { Club, ClubMember, ClubReading, Profile, Book, Annotation, Reaction, Reply } from '@/lib/types'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import { ReadingChallenge } from '@/components/reading-challenge'
+import { QuotesList } from '@/components/quotes-list'
 
 type ClubWithDetails = Club & {
   members: (ClubMember & { user: Profile })[]
@@ -355,6 +357,14 @@ export default function ClubPage({ params }: { params: Promise<{ id: string }> }
           ))}
         </div>
       )}
+
+      {/* Club Features */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ReadingChallenge clubId={id} />
+        {club.current_reading && (
+          <QuotesList bookId={club.current_reading.book_id} book={club.current_reading.book} />
+        )}
+      </div>
 
       {/* Settings Dialog */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
