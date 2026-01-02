@@ -45,7 +45,9 @@ export default function RegisterPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      // Check if there's a pending invite code
+      // Check if email confirmation is required
+      // Supabase returns success even when confirmation is needed
+      // We'll redirect to setup and let the auth middleware handle it
       const pendingInvite = localStorage.getItem('pendingInviteCode')
       if (pendingInvite) {
         router.push(`/setup?invite=${pendingInvite}`)

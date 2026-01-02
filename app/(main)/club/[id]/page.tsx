@@ -136,7 +136,7 @@ export default function ClubPage({ params }: { params: Promise<{ id: string }> }
   }
 
   const handleStartReading = async (bookData: {
-    open_library_key: string | null
+    google_books_id: string | null
     title: string
     author: string
     cover_url: string | null
@@ -145,18 +145,29 @@ export default function ClubPage({ params }: { params: Promise<{ id: string }> }
   }) => {
     // Check if book exists
     let book: Book | null = null
-    const { data: existingBook } = await supabase
-      .from('leitura_books')
-      .select('*')
-      .eq('open_library_key', bookData.open_library_key)
-      .single()
+    if (bookData.google_books_id) {
+      const { data: existingBook } = await supabase
+        .from('leitura_books')
+        .select('*')
+        .eq('google_books_id', bookData.google_books_id)
+        .single()
 
-    if (existingBook) {
-      book = existingBook
-    } else {
+      if (existingBook) {
+        book = existingBook
+      }
+    }
+
+    if (!book) {
       const { data: newBook } = await supabase
         .from('leitura_books')
-        .insert(bookData)
+        .insert({
+          google_books_id: bookData.google_books_id,
+          title: bookData.title,
+          author: bookData.author,
+          cover_url: bookData.cover_url,
+          year_published: bookData.year_published,
+          pages: bookData.pages,
+        })
         .select()
         .single()
       book = newBook

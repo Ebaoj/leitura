@@ -4,18 +4,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { searchBooks, formatBookFromOpenLibrary, getCoverUrl, type OpenLibraryBook } from '@/lib/openlib'
+import { searchBooks, formatBookFromGoogle, getCoverUrl, type GoogleBook } from '@/lib/google-books'
 import { Loader2, Search } from 'lucide-react'
 import Image from 'next/image'
 
 interface BookSearchProps {
-  onSelect: (book: ReturnType<typeof formatBookFromOpenLibrary>) => void
+  onSelect: (book: ReturnType<typeof formatBookFromGoogle>) => void
   placeholder?: string
 }
 
 export function BookSearch({ onSelect, placeholder = 'Buscar livros...' }: BookSearchProps) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<OpenLibraryBook[]>([])
+  const [results, setResults] = useState<GoogleBook[]>([])
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -27,7 +27,7 @@ export function BookSearch({ onSelect, placeholder = 'Buscar livros...' }: BookS
 
     setLoading(true)
     try {
-      const books = await searchBooks(q)
+      const books = await searchBooks(q, 10)
       setResults(books)
       setOpen(true)
     } catch (error) {
@@ -46,8 +46,8 @@ export function BookSearch({ onSelect, placeholder = 'Buscar livros...' }: BookS
     return () => clearTimeout(timer)
   }, [query, search])
 
-  const handleSelect = (book: OpenLibraryBook) => {
-    onSelect(formatBookFromOpenLibrary(book))
+  const handleSelect = (book: GoogleBook) => {
+    onSelect(formatBookFromGoogle(book))
     setQuery('')
     setResults([])
     setOpen(false)
@@ -76,27 +76,27 @@ export function BookSearch({ onSelect, placeholder = 'Buscar livros...' }: BookS
             <CardContent className="p-2">
               {results.map((book) => (
                 <button
-                  key={book.key}
+                  key={book.id}
                   onClick={() => handleSelect(book)}
                   className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left"
                 >
-                  <div className="relative w-10 h-14 bg-zinc-200 dark:bg-zinc-700 rounded shrink-0">
-                    {book.cover_i && (
+                  <div className="relative w-10 h-14 bg-zinc-200 dark:bg-zinc-700 rounded shrink-0 overflow-hidden">
+                    {getCoverUrl(book, 'small') && (
                       <Image
-                        src={getCoverUrl(book.cover_i, 'S')!}
-                        alt={book.title}
+                        src={getCoverUrl(book, 'small')!}
+                        alt={book.volumeInfo.title}
                         fill
-                        className="object-cover rounded"
+                        className="object-cover"
                       />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm line-clamp-1">{book.title}</p>
+                    <p className="font-medium text-sm line-clamp-1">{book.volumeInfo.title}</p>
                     <p className="text-xs text-zinc-500 line-clamp-1">
-                      {book.author_name?.[0] || 'Autor desconhecido'}
+                      {book.volumeInfo.authors?.join(', ') || 'Autor desconhecido'}
                     </p>
-                    {book.first_publish_year && (
-                      <p className="text-xs text-zinc-400">{book.first_publish_year}</p>
+                    {book.volumeInfo.publishedDate && (
+                      <p className="text-xs text-zinc-400">{book.volumeInfo.publishedDate.slice(0, 4)}</p>
                     )}
                   </div>
                 </button>

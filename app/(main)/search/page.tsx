@@ -6,11 +6,11 @@ import { BookCard } from '@/components/book-card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Loader2, Search as SearchIcon } from 'lucide-react'
-import { searchBooks, formatBookFromOpenLibrary } from '@/lib/openlib'
+import { searchBooks, formatBookFromGoogle } from '@/lib/google-books'
 import type { Book } from '@/lib/types'
 import { toast } from 'sonner'
 
-type SearchResult = ReturnType<typeof formatBookFromOpenLibrary>
+type SearchResult = ReturnType<typeof formatBookFromGoogle>
 
 export default function SearchPage() {
   const [query, setQuery] = useState('')
@@ -27,7 +27,7 @@ export default function SearchPage() {
 
     try {
       const books = await searchBooks(query, 20)
-      setResults(books.map(formatBookFromOpenLibrary))
+      setResults(books.map(formatBookFromGoogle))
     } catch {
       toast.error('Erro ao buscar livros')
     }
@@ -41,24 +41,33 @@ export default function SearchPage() {
   }
 
   const handleAddToShelf = async (bookData: SearchResult) => {
-    setAddingBook(bookData.open_library_key)
+    setAddingBook(bookData.google_books_id)
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // Check if book exists
+    // Check if book exists by google_books_id or title+author
     let book: Book | null = null
     const { data: existingBook } = await supabase
       .from('leitura_books')
       .select('*')
-      .eq('open_library_key', bookData.open_library_key)
+      .or(`google_books_id.eq.${bookData.google_books_id},and(title.eq.${bookData.title},author.eq.${bookData.author})`)
+      .limit(1)
       .single()
 
     if (existingBook) {
       book = existingBook
     } else {
+      // Insert only the fields that exist in the database
       const { data: newBook } = await supabase
         .from('leitura_books')
-        .insert(bookData)
+        .insert({
+          google_books_id: bookData.google_books_id,
+          title: bookData.title,
+          author: bookData.author,
+          cover_url: bookData.cover_url,
+          year_published: bookData.year_published,
+          pages: bookData.pages,
+        })
         .select()
         .single()
       book = newBook
@@ -140,10 +149,10 @@ export default function SearchPage() {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {results.map((book) => (
-            <div key={book.open_library_key} className="relative group">
+            <div key={book.google_books_id} className="relative group">
               <BookCard
                 book={{
-                  id: book.open_library_key || '',
+                  id: book.google_books_id || '',
                   ...book,
                 }}
               />
@@ -151,10 +160,10 @@ export default function SearchPage() {
                 <Button
                   size="sm"
                   onClick={() => handleAddToShelf(book)}
-                  disabled={addingBook === book.open_library_key}
+                  disabled={addingBook === book.google_books_id}
                   className="bg-amber-500 hover:bg-amber-600"
                 >
-                  {addingBook === book.open_library_key ? (
+                  {addingBook === book.google_books_id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     'Adicionar'
