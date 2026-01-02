@@ -44,7 +44,7 @@ export function BookRecommendations() {
       const existingGoogleIds = new Set<string>()
 
       for (const ub of userBooks) {
-        const book = ub.book as Book
+        const book = ub.book as unknown as Book
         if (book?.author) {
           // Split in case of multiple authors
           book.author.split(',').forEach(a => authors.add(a.trim()))
