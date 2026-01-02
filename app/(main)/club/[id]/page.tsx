@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import Image from 'next/image'
 import { ReadingChallenge } from '@/components/reading-challenge'
 import { QuotesList } from '@/components/quotes-list'
+import { ClubMembers } from '@/components/club-members'
 
 type ClubWithDetails = Club & {
   members: (ClubMember & { user: Profile })[]
@@ -268,22 +269,13 @@ export default function ClubPage({ params }: { params: Promise<{ id: string }> }
         </Button>
       </div>
 
-      {/* Members */}
-      <div className="flex items-center gap-2">
-        <div className="flex -space-x-2">
-          {club.members.slice(0, 6).map((member) => (
-            <UserAvatar
-              key={member.user_id}
-              src={member.user?.avatar_url}
-              name={member.user?.display_name || member.user?.username}
-              className="h-8 w-8 border-2 border-white dark:border-zinc-900"
-            />
-          ))}
-        </div>
-        <span className="text-sm text-zinc-500">
-          {club.members.length} membro{club.members.length !== 1 ? 's' : ''}
-        </span>
-      </div>
+      {/* Members Card */}
+      <ClubMembers
+        clubId={id}
+        members={club.members}
+        isAdmin={isAdmin}
+        onMemberRemoved={fetchClub}
+      />
 
       {/* Current Reading */}
       <Card>
