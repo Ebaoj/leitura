@@ -26,7 +26,7 @@ export interface ClubMember {
 
 export interface Book {
   id: string
-  open_library_key: string | null
+  google_books_id: string | null
   title: string
   author: string | null
   cover_url: string | null
