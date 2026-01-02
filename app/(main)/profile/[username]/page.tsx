@@ -24,6 +24,7 @@ import { toast } from 'sonner'
 import { UserFollow } from '@/components/user-follow'
 import { ReadingGoal } from '@/components/reading-goal'
 import { ReadingStreak } from '@/components/reading-streak'
+import { FollowButton } from '@/components/follow-button'
 
 type UserBookWithBook = UserBook & { book: Book }
 
@@ -223,14 +224,17 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
           {profile.bio && (
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">{profile.bio}</p>
           )}
-          <div className="mt-3">
+          <div className="mt-3 flex items-center gap-4">
             <UserFollow userId={profile.id} compact />
+            {!isOwnProfile && (
+              <FollowButton targetUserId={profile.id} />
+            )}
           </div>
         </div>
       </div>
 
-      {/* Reading Streak */}
-      <ReadingStreak />
+      {/* Reading Streak - only show for own profile */}
+      {isOwnProfile && <ReadingStreak />}
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -316,9 +320,9 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
         </Card>
       )}
 
-      {/* Reading Goal and Follow */}
+      {/* Reading Goal (only own profile) and Connections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ReadingGoal />
+        {isOwnProfile && <ReadingGoal />}
         <UserFollow userId={profile.id} />
       </div>
 
