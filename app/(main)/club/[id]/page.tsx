@@ -114,10 +114,11 @@ export default function ClubPage({ params }: { params: Promise<{ id: string }> }
     fetchClub()
   }, [id, supabase])
 
-  const handleCopyCode = () => {
+  const handleCopyLink = () => {
     if (club) {
-      navigator.clipboard.writeText(club.invite_code)
-      toast.success('Código copiado!')
+      const inviteUrl = `${window.location.origin}/invite/${club.invite_code}`
+      navigator.clipboard.writeText(inviteUrl)
+      toast.success('Link de convite copiado!')
     }
   }
 
@@ -353,15 +354,16 @@ export default function ClubPage({ params }: { params: Promise<{ id: string }> }
 
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-zinc-500 mb-2">Código de convite</p>
+              <p className="text-sm text-zinc-500 mb-2">Link de convite</p>
               <div className="flex gap-2">
-                <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-4 py-3 font-mono text-xl tracking-widest text-center">
-                  {club.invite_code}
+                <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-3 text-sm truncate">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/invite/${club.invite_code}` : `/invite/${club.invite_code}`}
                 </div>
-                <Button variant="outline" size="icon" onClick={handleCopyCode}>
+                <Button variant="outline" size="icon" onClick={handleCopyLink}>
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
+              <p className="text-xs text-zinc-400 mt-2">Compartilhe este link para convidar pessoas - funciona mesmo para quem não tem conta</p>
             </div>
 
             {isAdmin && (

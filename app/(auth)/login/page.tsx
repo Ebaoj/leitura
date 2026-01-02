@@ -34,7 +34,14 @@ export default function LoginPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push('/')
+      // Check if there's a pending invite code
+      const pendingInvite = localStorage.getItem('pendingInviteCode')
+      if (pendingInvite) {
+        localStorage.removeItem('pendingInviteCode')
+        router.push(`/invite/${pendingInvite}`)
+      } else {
+        router.push('/')
+      }
       router.refresh()
     }
   }

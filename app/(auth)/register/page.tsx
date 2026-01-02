@@ -45,7 +45,13 @@ export default function RegisterPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push('/setup')
+      // Check if there's a pending invite code
+      const pendingInvite = localStorage.getItem('pendingInviteCode')
+      if (pendingInvite) {
+        router.push(`/setup?invite=${pendingInvite}`)
+      } else {
+        router.push('/setup')
+      }
     }
   }
 

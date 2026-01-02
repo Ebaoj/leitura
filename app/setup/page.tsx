@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,8 @@ export default function SetupPage() {
   const [checkingUsername, setCheckingUsername] = useState(false)
   const [usernameError, setUsernameError] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const inviteCode = searchParams.get('invite')
   const supabase = createClient()
 
   useEffect(() => {
@@ -82,7 +84,15 @@ export default function SetupPage() {
       return
     }
 
-    router.push('/')
+    // Clear pending invite from localStorage
+    localStorage.removeItem('pendingInviteCode')
+
+    // If there's an invite code, redirect to join the club
+    if (inviteCode) {
+      router.push(`/invite/${inviteCode}`)
+    } else {
+      router.push('/')
+    }
   }
 
   return (
